@@ -2,7 +2,6 @@ package com.howshea.jikelikedemo
 
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
-import android.animation.PropertyValuesHolder
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -22,6 +21,7 @@ class LikeView : View {
     private var bitmapLike: Bitmap = createBitmap(R.drawable.ic_messages_like_unselected)
     private val bitmapShining = createBitmap(R.drawable.ic_messages_like_selected_shining)
     private var likeCount = 8
+    private var scaleXY = 1f
     private var textAlpha1 = 255
         set(value) {
             field = value
@@ -86,7 +86,12 @@ class LikeView : View {
         canvas.run {
             bitmapLike = if (!isLike) createBitmap(R.drawable.ic_messages_like_unselected) else createBitmap(R.drawable.ic_messages_like_selected)
             clipRect(0f, 0f, bitmapLike.width + dpToPx(20f), dpToPx(16f) + bitmapLike.height)
+
+            save()
+            scale(scaleXY,scaleXY,dpToPx(8f)+bitmapLike.width/2,dpToPx(8f)+bitmapLike.height/2)
             drawBitmap(bitmapLike, dpToPx(8f), dpToPx(8f), paintBitmap)
+            restore()
+
             paintText1.alpha = textAlpha1
             paintText2.alpha = textAlpha2
             drawText(text1, bitmapLike.width + dpToPx(12f), offsetY1, paintText1)
