@@ -21,7 +21,17 @@ class LikeView : View {
     private var bitmapLike: Bitmap = createBitmap(R.drawable.ic_messages_like_unselected)
     private val bitmapShining = createBitmap(R.drawable.ic_messages_like_selected_shining)
     private var likeCount = 8
-    private var scaleXY = 1f
+    private var radius = 1f
+        set(value) {
+            field = value
+            invalidate()
+        }
+    private var circleAlpha = 255
+        set(value) {
+            field = value
+            invalidate()
+        }
+
     private var textAlpha1 = 255
         set(value) {
             field = value
@@ -48,7 +58,15 @@ class LikeView : View {
     }
 
     private val paintBitmap = Paint().apply {
+        isAntiAlias = true
+    }
 
+    private val paintBitmapShine = Paint().apply {
+        isAntiAlias = true
+    }
+
+    private val paintCircle = Paint().apply {
+        isAntiAlias = true
     }
 
 
@@ -62,6 +80,19 @@ class LikeView : View {
             field = value
             invalidate()
         }
+
+    private var scaleXY = 1f
+        set(value) {
+            field = value
+            invalidate()
+        }
+
+    private var shineAlpha = 255
+        set(value) {
+            field = value
+            invalidate()
+        }
+
     private var textBottom1: Float
     private var textBottom2: Float
 
@@ -88,9 +119,21 @@ class LikeView : View {
             clipRect(0f, 0f, bitmapLike.width + dpToPx(20f), dpToPx(16f) + bitmapLike.height)
 
             save()
-            scale(scaleXY,scaleXY,dpToPx(8f)+bitmapLike.width/2,dpToPx(8f)+bitmapLike.height/2)
+            scale(scaleXY, scaleXY, dpToPx(8f) + bitmapLike.width / 2, dpToPx(8f) + bitmapLike.height / 2)
             drawBitmap(bitmapLike, dpToPx(8f), dpToPx(8f), paintBitmap)
             restore()
+
+            if (isLike) {
+                save()
+                paintBitmapShine.alpha = shineAlpha
+                drawBitmap(bitmapShining, dpToPx(10f), dpToPx(0.5f), paintBitmapShine)
+                restore()
+
+                save()
+                paintCircle.alpha = circleAlpha
+                drawCircle(bitmapLike.width / 2f, bitmapLike.height / 2f, radius, paintCircle)
+            }
+
 
             paintText1.alpha = textAlpha1
             paintText2.alpha = textAlpha2
@@ -115,10 +158,11 @@ class LikeView : View {
         val animator2 = ObjectAnimator.ofInt(this, "textAlpha1", 255, 0)
         val animator3 = ObjectAnimator.ofFloat(this, "offsetY2", textBottom2, textBottom1)
         val animator4 = ObjectAnimator.ofInt(this, "textAlpha2", 0, 255)
-
+        val animator5 = ObjectAnimator.ofFloat(this, "scaleXY", 1f, 1.2f, 0.9f, 1f)
+        val animator6 = ObjectAnimator.ofInt(this, "shineAlpha", 0, 255)
         AnimatorSet().run {
-            duration = 500
-            playTogether(animator1, animator2, animator3, animator4)
+            duration = 400
+            playTogether(animator1, animator2, animator3, animator4, animator5, animator6)
             start()
         }
 
@@ -130,9 +174,10 @@ class LikeView : View {
         val animator3 = ObjectAnimator.ofFloat(this, "offsetY2", textBottom1, textBottom2)
         animator3.interpolator = FastOutLinearInInterpolator()
         val animator4 = ObjectAnimator.ofInt(this, "textAlpha2", 255, 0)
+        val animator5 = ObjectAnimator.ofFloat(this, "scaleXY", 1f, 0.7f, 1f)
         AnimatorSet().run {
             duration = 400
-            playTogether(animator1, animator2, animator3, animator4)
+            playTogether(animator1, animator2, animator3, animator4, animator5)
             start()
         }
     }
