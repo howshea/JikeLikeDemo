@@ -14,7 +14,7 @@ import android.view.View
 /**
  * PackageName: com.howshea.jikelikedemo
  * FileName：   LikeView
- * Created by haipo on 2017/11/2.
+ * Created by Howshea on 2017/11/2.
  */
 class LikeView : View {
     private var isLike = false
@@ -26,7 +26,7 @@ class LikeView : View {
             field = value
             invalidate()
         }
-    private var circleAlpha = 255
+    private var circleAlpha = 0
         set(value) {
             field = value
             invalidate()
@@ -67,6 +67,9 @@ class LikeView : View {
 
     private val paintCircle = Paint().apply {
         isAntiAlias = true
+        color = resources.getColor(R.color.red)
+        style = Paint.Style.STROKE
+        strokeWidth = dpToPx(2f)
     }
 
 
@@ -87,7 +90,7 @@ class LikeView : View {
             invalidate()
         }
 
-    private var shineAlpha = 255
+    private var shineAlpha = 0
         set(value) {
             field = value
             invalidate()
@@ -131,7 +134,7 @@ class LikeView : View {
 
                 save()
                 paintCircle.alpha = circleAlpha
-                drawCircle(bitmapLike.width / 2f, bitmapLike.height / 2f, radius, paintCircle)
+                drawCircle(dpToPx(8f) + bitmapLike.width / 2f, dpToPx(6f) + bitmapLike.height / 2f, radius, paintCircle)
             }
 
 
@@ -158,11 +161,13 @@ class LikeView : View {
         val animator2 = ObjectAnimator.ofInt(this, "textAlpha1", 255, 0)
         val animator3 = ObjectAnimator.ofFloat(this, "offsetY2", textBottom2, textBottom1)
         val animator4 = ObjectAnimator.ofInt(this, "textAlpha2", 0, 255)
-        val animator5 = ObjectAnimator.ofFloat(this, "scaleXY", 1f, 1.2f, 0.9f, 1f)
+        val animator5 = ObjectAnimator.ofFloat(this, "scaleXY", 0.7f, 1f, 1.2f, 0.9f, 1f)
         val animator6 = ObjectAnimator.ofInt(this, "shineAlpha", 0, 255)
+        val animator7 = ObjectAnimator.ofFloat(this, "radius", 0f, bitmapLike.width * 0.8f)
+        val animator8 = ObjectAnimator.ofInt(this, "circleAlpha", 0, 50, 100, 0)
         AnimatorSet().run {
-            duration = 400
-            playTogether(animator1, animator2, animator3, animator4, animator5, animator6)
+            duration = 350
+            playTogether(animator1, animator2, animator3, animator4, animator5, animator6, animator7, animator8)
             start()
         }
 
@@ -176,7 +181,7 @@ class LikeView : View {
         val animator4 = ObjectAnimator.ofInt(this, "textAlpha2", 255, 0)
         val animator5 = ObjectAnimator.ofFloat(this, "scaleXY", 1f, 0.7f, 1f)
         AnimatorSet().run {
-            duration = 400
+            duration = 350
             playTogether(animator1, animator2, animator3, animator4, animator5)
             start()
         }
