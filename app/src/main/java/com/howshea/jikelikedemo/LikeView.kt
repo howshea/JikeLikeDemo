@@ -20,7 +20,13 @@ class LikeView : View {
     private var isLike = false
     private var bitmapLike: Bitmap = createBitmap(R.drawable.ic_messages_like_unselected)
     private val bitmapShining = createBitmap(R.drawable.ic_messages_like_selected_shining)
-    private var likeCount = 8
+    var likeCount = 10
+        set(value) {
+            field = value
+            reInit()
+        }
+    private var carryOver = false
+    private var textFrontWidth = 0f
     private var radius = 1f
         set(value) {
             field = value
@@ -43,6 +49,13 @@ class LikeView : View {
             field = value
             invalidate()
         }
+
+    private val paintText0 = Paint().apply {
+        isAntiAlias = true
+        textAlign = Paint.Align.LEFT
+        color = Color.parseColor("#BDBDBD")
+        textSize = bitmapLike.height * 2 / 3f
+    }
     private val paintText1 = Paint().apply {
         isAntiAlias = true
         textAlign = Paint.Align.LEFT
@@ -67,6 +80,7 @@ class LikeView : View {
 
     private val paintCircle = Paint().apply {
         isAntiAlias = true
+        @Suppress("DEPRECATION")
         color = resources.getColor(R.color.red)
         style = Paint.Style.STROKE
         strokeWidth = dpToPx(2f)
@@ -96,11 +110,12 @@ class LikeView : View {
             invalidate()
         }
 
+    //temp
     private var textBottom1: Float
     private var textBottom2: Float
 
-    private val text1 = likeCount.toString(10)
-    private val text2 = (likeCount + 1).toString(10)
+    private var text1 = likeCount.toString(10)
+    private var text2 = (likeCount + 1).toString(10)
 
     constructor(context: Context?) : super(context)
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
@@ -113,14 +128,47 @@ class LikeView : View {
         offsetY2 = offsetY1 * 2
         textBottom1 = offsetY1
         textBottom2 = offsetY2
+
+        if (text1[0] == text2[0]) {
+            carryOver = false
+            textFrontWidth = paintText0.measureText(text1[0].toString())
+        } else {
+            carryOver = true
+        }
+
+
+    }
+
+    private fun reInit() {
+        val count = if (isLike) likeCount - 1 else likeCount
+        text1 = count.toString(10)
+        text2 = (count + 1).toString(10)
+        if (text1[0] == text2[0]) {
+            carryOver = false
+            textFrontWidth = paintText0.measureText(text1[0].toString())
+        } else {
+            carryOver = true
+        }
+        invalidate()
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        val textWidth = paintText1.measureText(text2)
+        val width = dpToPx(20f) + bitmapLike.width + textWidth
+        val height = dpToPx(8f) + bitmapLike.height * 0.8 * 2
+        setMeasuredDimension(width.toInt(), height.toInt())
+    }
+
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
     }
 
 
     override fun onDraw(canvas: Canvas) {
         canvas.run {
             bitmapLike = if (!isLike) createBitmap(R.drawable.ic_messages_like_unselected) else createBitmap(R.drawable.ic_messages_like_selected)
-            clipRect(0f, 0f, bitmapLike.width + dpToPx(20f), dpToPx(16f) + bitmapLike.height)
-
+//            clipRect(0f, 0f, bitmapLike.width + dpToPx(20f), dpToPx(16f) + bitmapLike.height)
             save()
             scale(scaleXY, scaleXY, dpToPx(8f) + bitmapLike.width / 2, dpToPx(8f) + bitmapLike.height / 2)
             drawBitmap(bitmapLike, dpToPx(8f), dpToPx(8f), paintBitmap)
@@ -137,11 +185,17 @@ class LikeView : View {
                 drawCircle(dpToPx(8f) + bitmapLike.width / 2f, dpToPx(6f) + bitmapLike.height / 2f, radius, paintCircle)
             }
 
-
             paintText1.alpha = textAlpha1
             paintText2.alpha = textAlpha2
-            drawText(text1, bitmapLike.width + dpToPx(12f), offsetY1, paintText1)
-            drawText(text2, bitmapLike.width + dpToPx(12f), offsetY2, paintText2)
+            if (carryOver) {
+                drawText(text1, bitmapLike.width + dpToPx(12f), offsetY1, paintText1)
+                drawText(text2, bitmapLike.width + dpToPx(12f), offsetY2, paintText2)
+            } else {
+                drawText(text1[0].toString(), bitmapLike.width + dpToPx(12f), textBottom1, paintText0)
+                drawText(text1[1].toString(), bitmapLike.width + dpToPx(12f) + textFrontWidth, offsetY1, paintText1)
+                drawText(text2[1].toString(), bitmapLike.width + dpToPx(12f) + textFrontWidth, offsetY2, paintText2)
+            }
+
         }
     }
 
