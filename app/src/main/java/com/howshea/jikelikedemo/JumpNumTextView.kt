@@ -1,9 +1,12 @@
 package com.howshea.jikelikedemo
 
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.support.v4.view.animation.FastOutLinearInInterpolator
 import android.util.AttributeSet
 import android.view.View
 
@@ -19,16 +22,9 @@ class JumpNumTextView : View {
 
     //是否处于点赞状态
     var isLiked = false
-        set(value) {
-            field = value
-            setText()
-        }
 
-    var likeCount = 0
-        set(value) {
-            field = value
-            setText()
-        }
+    private var likeCount = 0
+
     private var textSize = 0f
     private var textColor = 0
     //文字拆成三个部分
@@ -116,6 +112,7 @@ class JumpNumTextView : View {
     //分割字符串
     private fun setText() {
         val count = if (isLiked) likeCount - 1 else likeCount
+        if (count < 0) throw IllegalArgumentException("数字必须大于等于0")
         sliceText(count.toString(10), (count + 1).toString(10))
         if (isLiked) {
             textTopY = 0f
@@ -128,7 +125,17 @@ class JumpNumTextView : View {
             textTopAlpha = 255
             textBottomAlpha = 0
         }
+        if (likeCount < 2) {
+            if (textTop == "0") textTop = " "
+            if (textBottom == "0") textBottom = " "
+        }
         invalidate()
+    }
+
+    fun initView(isLiked: Boolean, likeCount: Int) {
+        this.isLiked = isLiked
+        this.likeCount = likeCount
+        setText()
     }
 
     constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
@@ -163,6 +170,44 @@ class JumpNumTextView : View {
         }
         textTop = text1.substringAfter(textFixed)
         textBottom = text2.substringAfter(textFixed)
+    }
+
+    private fun animatorLike() {
+        val animatorGone = ObjectAnimator.ofFloat(this, "textTopY", baseLine, 0f)
+        animatorGone.interpolator = FastOutLinearInInterpolator()
+        val animatorHide = ObjectAnimator.ofInt(this, "textTopAlpha", 255, 0)
+        val animatorVisible = ObjectAnimator.ofFloat(this, "textBottomY", baseLine * 2, baseLine)
+        val animatorShow = ObjectAnimator.ofInt(this, "textBottomAlpha", 0, 255)
+        AnimatorSet().run {
+            duration = 350
+            playTogether(animatorGone, animatorHide, animatorVisible, animatorShow)
+            start()
+        }
+    }
+
+    private fun animatorUnLike() {
+        val animatorVisible = ObjectAnimator.ofFloat(this, "textTopY", 0f, baseLine)
+        animatorVisible.interpolator = FastOutLinearInInterpolator()
+        val animatorShow = ObjectAnimator.ofInt(this, "textTopAlpha", 0, 255)
+        val animatorGone = ObjectAnimator.ofFloat(this, "textBottomY", baseLine, baseLine * 2)
+        val animatorHide = ObjectAnimator.ofInt(this, "textBottomAlpha", 255, 0)
+        AnimatorSet().run {
+            duration = 350
+            playTogether(animatorVisible, animatorShow, animatorGone, animatorHide)
+            start()
+        }
+    }
+
+    fun like() {
+        if (!isLiked) {
+            animatorLike()
+            likeCount++
+        } else {
+            animatorUnLike()
+            likeCount--
+        }
+        isLiked = !isLiked
+
     }
 
 }

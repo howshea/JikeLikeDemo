@@ -18,7 +18,7 @@
     <com.howshea.jikelikedemo.JumpNumTextView
         android:layout_marginTop="20dp"
         android:layout_width="100dp"
-        android:visibility="gone"
+        android:visibility="visible"
         android:layout_height="wrap_content"
         app:textSize="20sp"
         android:id="@+id/tv_like"

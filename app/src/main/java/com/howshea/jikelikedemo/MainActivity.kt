@@ -10,15 +10,17 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         test.setOnClickListener {
-            //            if (editText.text.isNotEmpty()) {
-//                view.likeCount = editText.text.toString().toInt()
-//            }
-            tv_like.likeCount  +=1
+            if (editText.text.isNotEmpty()) {
+                tv_like.initView(tv_like.isLiked, editText.text.toString().toLong().toInt())
+            }
+
         }
         view.setOnClickListener {
-            view.likeCount + 1
+            view.like()
         }
-        tv_like.likeCount = 100
-        tv_like.isLiked = false
+        tv_like.initView(true, 99)
+        tv_like.setOnClickListener {
+            tv_like.like()
+        }
     }
 }
