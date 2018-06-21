@@ -10,6 +10,7 @@ import android.graphics.Paint
 import android.support.v4.view.animation.FastOutLinearInInterpolator
 import android.util.AttributeSet
 import android.view.View
+import android.view.View.MeasureSpec.*
 
 /**
  * PackageName: com.howshea.jikelikedemo
@@ -20,13 +21,15 @@ class LikeView : View {
     private var isLike = false
     private var bitmapLike: Bitmap = createBitmap(R.drawable.ic_messages_like_unselected)
     private val bitmapShining = createBitmap(R.drawable.ic_messages_like_selected_shining)
-    var likeCount = 10
+    var likeCount = 0
         set(value) {
             field = value
             reInit()
         }
-    private var carryOver = false
     private var textFrontWidth = 0f
+    private var textFront: String = ""
+    private var textUp: String = ""
+    private var textBottom: String = ""
     private var radius = 1f
         set(value) {
             field = value
@@ -111,8 +114,10 @@ class LikeView : View {
         }
 
     //temp
-    private var textBottom1: Float
-    private var textBottom2: Float
+    private var textBottomY1: Float
+    private var textBottomY2: Float
+    private var textFrontX = bitmapLike.width + dpToPx(12f)
+    private var textEndX: Float
 
     private var text1 = likeCount.toString(10)
     private var text2 = (likeCount + 1).toString(10)
@@ -126,42 +131,41 @@ class LikeView : View {
             -(fontMetrics.descent + fontMetrics.ascent) / 2f
         }
         offsetY2 = offsetY1 * 2
-        textBottom1 = offsetY1
-        textBottom2 = offsetY2
-
-        if (text1[0] == text2[0]) {
-            carryOver = false
-            textFrontWidth = paintText0.measureText(text1[0].toString())
-        } else {
-            carryOver = true
-        }
-
-
+        textBottomY1 = offsetY1
+        textBottomY2 = offsetY2
+        sliceText(text1, text2)
+        textFrontWidth = paintText0.measureText(textFront)
+        textEndX = textFrontX + textFrontWidth
     }
 
     private fun reInit() {
         val count = if (isLike) likeCount - 1 else likeCount
         text1 = count.toString(10)
         text2 = (count + 1).toString(10)
-        if (text1[0] == text2[0]) {
-            carryOver = false
-            textFrontWidth = paintText0.measureText(text1[0].toString())
-        } else {
-            carryOver = true
-        }
+        sliceText(text1, text2)
+        textFrontWidth = paintText0.measureText(textFront)
+        textEndX = textFrontX + textFrontWidth
+        println("reInit, text1: $text1")
         invalidate()
     }
+
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         val textWidth = paintText1.measureText(text2)
-        val width = dpToPx(20f) + bitmapLike.width + textWidth
-        val height = dpToPx(8f) + bitmapLike.height * 0.8 * 2
-        setMeasuredDimension(width.toInt(), height.toInt())
-    }
-
-    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        super.onSizeChanged(w, h, oldw, oldh)
+        val specModeX = getMode(widthMeasureSpec)
+        val specModeY = getMode(heightMeasureSpec)
+        val width = when (specModeX) {
+            EXACTLY -> measuredWidth
+            UNSPECIFIED, AT_MOST -> (dpToPx(20f) + bitmapLike.width + textWidth).toInt()
+            else -> measuredWidth
+        }
+        val height = when (specModeY) {
+            EXACTLY -> measuredHeight
+            UNSPECIFIED, AT_MOST -> (dpToPx(8f) + bitmapLike.height * 0.8 * 2).toInt()
+            else -> measuredHeight
+        }
+        setMeasuredDimension(width, height)
     }
 
 
@@ -187,15 +191,9 @@ class LikeView : View {
 
             paintText1.alpha = textAlpha1
             paintText2.alpha = textAlpha2
-            if (carryOver) {
-                drawText(text1, bitmapLike.width + dpToPx(12f), offsetY1, paintText1)
-                drawText(text2, bitmapLike.width + dpToPx(12f), offsetY2, paintText2)
-            } else {
-                drawText(text1[0].toString(), bitmapLike.width + dpToPx(12f), textBottom1, paintText0)
-                drawText(text1[1].toString(), bitmapLike.width + dpToPx(12f) + textFrontWidth, offsetY1, paintText1)
-                drawText(text2[1].toString(), bitmapLike.width + dpToPx(12f) + textFrontWidth, offsetY2, paintText2)
-            }
-
+            drawText(textFront, textFrontX, textBottomY1, paintText0)
+            drawText(textUp, textEndX, offsetY1, paintText1)
+            drawText(textBottom, textEndX, offsetY2, paintText2)
         }
     }
 
@@ -210,10 +208,10 @@ class LikeView : View {
     }
 
     private fun animatorLike() {
-        val animator1 = ObjectAnimator.ofFloat(this, "offsetY1", textBottom1, 0f)
+        val animator1 = ObjectAnimator.ofFloat(this, "offsetY1", textBottomY1, 0f)
         animator1.interpolator = FastOutLinearInInterpolator()
         val animator2 = ObjectAnimator.ofInt(this, "textAlpha1", 255, 0)
-        val animator3 = ObjectAnimator.ofFloat(this, "offsetY2", textBottom2, textBottom1)
+        val animator3 = ObjectAnimator.ofFloat(this, "offsetY2", textBottomY2, textBottomY1)
         val animator4 = ObjectAnimator.ofInt(this, "textAlpha2", 0, 255)
         val animator5 = ObjectAnimator.ofFloat(this, "scaleXY", 0.7f, 1f, 1.2f, 0.9f, 1f)
         val animator6 = ObjectAnimator.ofInt(this, "shineAlpha", 0, 255)
@@ -228,9 +226,9 @@ class LikeView : View {
     }
 
     private fun animatorUnlike() {
-        val animator1 = ObjectAnimator.ofFloat(this, "offsetY1", 0f, textBottom1)
+        val animator1 = ObjectAnimator.ofFloat(this, "offsetY1", 0f, textBottomY1)
         val animator2 = ObjectAnimator.ofInt(this, "textAlpha1", 0, 255)
-        val animator3 = ObjectAnimator.ofFloat(this, "offsetY2", textBottom1, textBottom2)
+        val animator3 = ObjectAnimator.ofFloat(this, "offsetY2", textBottomY1, textBottomY2)
         animator3.interpolator = FastOutLinearInInterpolator()
         val animator4 = ObjectAnimator.ofInt(this, "textAlpha2", 255, 0)
         val animator5 = ObjectAnimator.ofFloat(this, "scaleXY", 1f, 0.7f, 1f)
@@ -240,4 +238,14 @@ class LikeView : View {
             start()
         }
     }
+
+
+    private fun sliceText(text1: String, text2: String) {
+        textFront = text1.takeWhileIndexed { i, c ->
+            c == text2[i]
+        }
+        textUp = text1.substringAfter(textFront)
+        textBottom = text2.substringAfter(textFront)
+    }
+
 }

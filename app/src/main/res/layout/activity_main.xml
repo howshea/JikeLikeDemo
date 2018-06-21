@@ -10,10 +10,19 @@
 
     <com.howshea.jikelikedemo.LikeView
         android:id="@+id/view"
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="100dp" />
+
+    <com.howshea.jikelikedemo.JumpNumTextView
+        android:layout_marginTop="20dp"
+        android:layout_width="100dp"
+        android:visibility="gone"
+        android:layout_height="wrap_content"
+        app:textSize="20sp"
+        android:id="@+id/tv_like"
+        app:textColor="#cccccc"/>
 
     <EditText
         android:id="@+id/editText"
