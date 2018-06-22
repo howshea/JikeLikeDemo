@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.support.v4.view.animation.FastOutLinearInInterpolator
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 
 /**
@@ -21,7 +22,7 @@ class JumpNumTextView : View {
     }
 
     //是否处于点赞状态
-    var isLiked = false
+    private var isLiked = false
 
     private var likeCount = 0
 
@@ -31,6 +32,8 @@ class JumpNumTextView : View {
     private var textFixed = ""
     private var textTop = ""
     private var textBottom = ""
+    //进位
+    private var carryFlag = false
 
     private val textPaintFixed = Paint().apply {
         isAntiAlias = true
@@ -45,7 +48,7 @@ class JumpNumTextView : View {
         textAlign = Paint.Align.LEFT
     }
 
-    //用于属性动画
+    //下面四个属性用于属性动画
     private var textTopY = 0f
         set(value) {
             field = value
@@ -80,6 +83,7 @@ class JumpNumTextView : View {
     private val baseLine
         get() = paddingTop - textPaintFixed.fontMetrics.top
 
+
     constructor(context: Context?) : super(context)
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs) {
         val attributes = context?.obtainStyledAttributes(attrs, R.styleable.JumpNumTextView)
@@ -112,7 +116,10 @@ class JumpNumTextView : View {
     //分割字符串
     private fun setText() {
         val count = if (isLiked) likeCount - 1 else likeCount
-        if (count < 0) throw IllegalArgumentException("数字必须大于等于0")
+        if (count < 0) {
+            Log.e("JumNumTextView", "最小数字必须大于等于0")
+            return
+        }
         sliceText(count.toString(10), (count + 1).toString(10))
         if (isLiked) {
             textTopY = 0f
@@ -129,7 +136,7 @@ class JumpNumTextView : View {
             if (textTop == "0") textTop = " "
             if (textBottom == "0") textBottom = " "
         }
-        invalidate()
+        requestLayout()
     }
 
     fun initView(isLiked: Boolean, likeCount: Int) {
@@ -144,7 +151,6 @@ class JumpNumTextView : View {
         val measureWidth = resolveSize(onMeasureWidth(), widthMeasureSpec)
         val measureHeight = resolveSize(onMeasureHeight(), heightMeasureSpec)
         setMeasuredDimension(measureWidth, measureHeight)
-
     }
 
     private fun onMeasureWidth() = paddingStart + paddingEnd + textPaintFixed.measureText(textFixed + textBottom).toInt()
@@ -159,12 +165,21 @@ class JumpNumTextView : View {
             textTopPaint.alpha = textTopAlpha
             textBottomPaint.alpha = textBottomAlpha
             drawText(textFixed, textStartX.toFloat(), baseLine, textPaintFixed)
-            drawText(textTop, textFixedEndX, textTopY, textTopPaint)
+            //如果进位了textTop需要往后退一个字节的位置
+            val textTopX = if (carryFlag)
+                textFixedEndX + textPaintFixed.measureText(textBottom[0].toString())
+            else
+                textFixedEndX
+            drawText(textTop, textTopX, textTopY, textTopPaint)
             drawText(textBottom, textFixedEndX, textBottomY, textBottomPaint)
         }
     }
 
+    /**
+     * 切割数字成三份，不变的部分固定
+     */
     private fun sliceText(text1: String, text2: String) {
+        carryFlag = text1.length != text2.length
         textFixed = text1.takeWhileIndexed { i, c ->
             c == text2[i]
         }
@@ -185,7 +200,7 @@ class JumpNumTextView : View {
         }
     }
 
-    private fun animatorUnLike() {
+    private fun animatorCancelLike() {
         val animatorVisible = ObjectAnimator.ofFloat(this, "textTopY", 0f, baseLine)
         animatorVisible.interpolator = FastOutLinearInInterpolator()
         val animatorShow = ObjectAnimator.ofInt(this, "textTopAlpha", 0, 255)
@@ -203,7 +218,7 @@ class JumpNumTextView : View {
             animatorLike()
             likeCount++
         } else {
-            animatorUnLike()
+            animatorCancelLike()
             likeCount--
         }
         isLiked = !isLiked

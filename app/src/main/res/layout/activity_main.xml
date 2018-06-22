@@ -15,14 +15,25 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="100dp" />
 
-    <com.howshea.jikelikedemo.JumpNumTextView
-        android:layout_marginTop="20dp"
-        android:layout_width="100dp"
-        android:visibility="visible"
+    <com.howshea.jikelikedemo.CommentLikeLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:textSize="20sp"
-        android:id="@+id/tv_like"
-        app:textColor="#cccccc"/>
+        android:padding="10dp"
+        android:id="@+id/layout_like"
+        android:gravity="center_vertical"
+        android:layout_marginTop="20dp">
+
+        <com.howshea.jikelikedemo.JumpNumTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingEnd="5dp"
+            app:textSize="12sp" />
+
+        <ImageView
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:src="@drawable/ic_like" />
+    </com.howshea.jikelikedemo.CommentLikeLayout>
 
     <EditText
         android:id="@+id/editText"
