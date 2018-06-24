@@ -33,7 +33,7 @@ class CommentLikeLayout : LinearLayout {
     /**
      * 拦截事件向下分发
      */
-    override fun onInterceptTouchEvent(ev: MotionEvent?) = false
+    override fun onInterceptTouchEvent(ev: MotionEvent?) = true
 
     override fun onFinishInflate() {
         super.onFinishInflate()
@@ -62,9 +62,10 @@ class CommentLikeLayout : LinearLayout {
         }
     }
 
-    override fun setOnClickListener(l: OnClickListener?) {
-        isSuspended = true
-        super.setOnClickListener(l)
+    override fun performClick(): Boolean {
+        if (isSuspended) return true
+        else isSuspended = true
+        return super.performClick()
     }
 
     @JvmOverloads

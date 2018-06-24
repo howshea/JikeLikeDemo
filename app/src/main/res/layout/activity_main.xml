@@ -16,12 +16,12 @@
         android:layout_marginTop="100dp" />
 
     <com.howshea.jikelikedemo.CommentLikeLayout
+        android:id="@+id/layout_like"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:id="@+id/layout_like"
+        android:layout_marginTop="20dp"
         android:gravity="center_vertical"
-        android:layout_marginTop="20dp">
+        android:padding="10dp">
 
         <com.howshea.jikelikedemo.JumpNumTextView
             android:layout_width="wrap_content"
