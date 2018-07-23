@@ -25,7 +25,8 @@
      <ImageView
          android:layout_width="15dp"
          android:layout_height="15dp"
-         android:src="@drawable/ic_like" /></com.howshea.jikelikedemo.CommentLikeLayout>
+         android:src="@drawable/ic_like" />
+</com.howshea.jikelikedemo.CommentLikeLayout>
 ```
 
 用法（kotlin）：
