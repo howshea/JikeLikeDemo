@@ -2,6 +2,7 @@ package com.howshea.jikelikedemo
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -10,10 +11,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         test.setOnClickListener {
-            if (editText.text.isNotEmpty()) {
-                layout_like.initView(editText.text.toString().toLong().toInt())
+            try {
+                if (editText.text.isNotEmpty()) {
+                    layout_like.initView(editText.text.toString().toLong().toInt())
+                    view.likeCount = editText.text.toString().toLong().toInt()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this,"格式错误",Toast.LENGTH_SHORT).show()
             }
-
         }
         view.setOnClickListener {
             view.like()

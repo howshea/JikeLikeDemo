@@ -18,24 +18,24 @@
     <com.howshea.jikelikedemo.CommentLikeLayout
         android:id="@+id/layout_like"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:layout_marginTop="20dp"
         android:gravity="center_vertical"
         android:padding="10dp">
-
         <com.howshea.jikelikedemo.JumpNumTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingEnd="5dp"
             app:textSize="12sp" />
-
         <ImageView
             android:layout_width="15dp"
             android:layout_height="15dp"
             android:src="@drawable/ic_like" />
+
     </com.howshea.jikelikedemo.CommentLikeLayout>
 
     <EditText
+        android:inputType="number"
         android:id="@+id/editText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

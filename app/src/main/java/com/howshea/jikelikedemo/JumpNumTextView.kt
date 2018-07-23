@@ -35,6 +35,13 @@ class JumpNumTextView : View {
     //进位
     private var carryFlag = false
 
+    //是否在bitmap的左侧
+    var isOnLeft = true
+        set(value) {
+            field = value
+            invalidate()
+        }
+
     private val textPaintFixed = Paint().apply {
         isAntiAlias = true
         textAlign = Paint.Align.LEFT
@@ -165,8 +172,8 @@ class JumpNumTextView : View {
             textTopPaint.alpha = textTopAlpha
             textBottomPaint.alpha = textBottomAlpha
             drawText(textFixed, textStartX.toFloat(), baseLine, textPaintFixed)
-            //如果进位了textTop需要往后退一个字节的位置
-            val textTopX = if (carryFlag)
+            //如果进位了而且数字在图片左边，textTop需要往后退一个字节的位置
+            val textTopX = if (carryFlag && isOnLeft)
                 textFixedEndX + textPaintFixed.measureText(textBottom[0].toString())
             else
                 textFixedEndX
@@ -222,7 +229,6 @@ class JumpNumTextView : View {
             likeCount--
         }
         isLiked = !isLiked
-
     }
 
 }

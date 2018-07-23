@@ -147,6 +147,7 @@ class LikeView : View {
         textEndX = textFrontX + textFrontWidth
         println("reInit, text1: $text1")
         invalidate()
+        requestLayout()
     }
 
 

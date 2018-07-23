@@ -42,11 +42,11 @@ class CommentLikeLayout : LinearLayout {
         }
         when {
             getChildAt(0) is JumpNumTextView -> { //数字在左边
-                tvCount = getChildAt(0) as JumpNumTextView
+                tvCount = (getChildAt(0) as JumpNumTextView).apply { isOnLeft = true }
                 imgIcon = getChildAt(1) as ImageView
             }
             getChildAt(0) is ImageView -> { //数字在右边
-                tvCount = getChildAt(1) as JumpNumTextView
+                tvCount = (getChildAt(1) as JumpNumTextView).apply { isOnLeft = false }
                 imgIcon = getChildAt(0) as ImageView
             }
             else -> throw IllegalArgumentException("child必须是JumpNumTextView或者ImageView")
@@ -95,8 +95,8 @@ class CommentLikeLayout : LinearLayout {
         }
     }
 
-    private fun like(){
-        if (isLiked){
+    private fun like() {
+        if (isLiked) {
             animUnSelectIcon()
         } else {
             animSelectIcon()
