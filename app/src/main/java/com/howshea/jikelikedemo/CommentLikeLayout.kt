@@ -68,6 +68,10 @@ class CommentLikeLayout : LinearLayout {
         return super.performClick()
     }
 
+    /**
+     * @param likeCount 点赞数量
+     * @param isLiked 选中状态
+     */
     @JvmOverloads
     fun initView(likeCount: Int, isLiked: Boolean = this.isLiked) {
         tvCount?.initView(isLiked, likeCount)
